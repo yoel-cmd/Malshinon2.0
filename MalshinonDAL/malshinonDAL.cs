@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Malshinon2._0.Models;
 using MySql.Data.MySqlClient;
 
 namespace Malshinon2._0.MalshinonDAL
@@ -147,8 +148,12 @@ namespace Malshinon2._0.MalshinonDAL
         }
         //----------------------------------------------------------------------------------------
         // פה אני חייב להכניס בדיקה האם הוא הכניס שם 
-        public string[] ParseReport(string report)
+        public string[] parseReport(string report)
         {
+            if (string.IsNullOrEmpty(report))
+            {
+                throw new ArgumentException("Report text cannot be empty.");
+            }
             string[] reportArr = report.Split(' ');
             if (reportArr.Length < 3)
             {
@@ -158,20 +163,50 @@ namespace Malshinon2._0.MalshinonDAL
             return reportArr;
         }
         //----------------------------------------------------------------------------------------
-        public void updateReports(int idTarget,int idInforment, string report)
+        public bool UpdateReport(int idInformer, int idTarget, string report)
         {
-            string quary = "";
-            using(cmd=new MySqlCommand(quary, conn))
+            try
             {
-                //cmd.Parameters.AddWithValue(" באנשיםלעדכן את דיווח");
-                //cmd.Parameters.AddWithValue("לעדכן אזכור באנשים");
-                //cmd.Parameters.AddWithValue("דיווחיםלהכניס דיווח");
-                //cmd.Parameters.AddWithValue(" להכניס שעה דיווחים");
-                //cmd.Parameters.AddWithValue("להכניס אורך דיווחים");
-               
                 
-            }
+                if (string.IsNullOrEmpty(report))
+                {
+                    throw new ArgumentException("Report text cannot be empty.");
+                }
+                if (idInformer <= 0 || idTarget <= 0)
+                {
+                    throw new ArgumentException("InformerId and TargetId must be positive integers.");
+                }
 
+               
+                string query = "INSERT INTO reports (InformerId, ReportedId, ReportText, ReportLength) VALUES (@InformerId, @ReportedId, @ReportText, @ReportLength); " +
+                              "UPDATE people SET ReportCount = ReportCount + 1 WHERE Id = @InformerId; " +
+                              "UPDATE people SET MentionCount = MentionCount + 1 WHERE Id = @ReportedId;";
+
+                using (var cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@InformerId", idInformer);
+                    cmd.Parameters.AddWithValue("@ReportedId", idTarget);
+                    cmd.Parameters.AddWithValue("@ReportText", report);
+                    cmd.Parameters.AddWithValue("@ReportLength", report.Length);
+
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected >= 3) 
+                    {
+                        Console.WriteLine($"Report added for InformerId {idInformer} and TargetId {idTarget}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Failed to add report: InformerId {idInformer} or TargetId {idTarget} may not exist.");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                throw;
+            }
         }
         //----------------------------------------------------------------------------------------
 
@@ -203,13 +238,13 @@ namespace Malshinon2._0.MalshinonDAL
             try
             {
 
-                string query = "UPDATE peopel SET Status @status WEARE FirstName = @firstName AND LastName =@LastName";
+                string query = "UPDATE people SET Status = @status WHERE FirstName = @firstName AND LastName =@LastName";
                 using (cmd = new MySqlCommand(query, conn))
                 {
                     
                     cmd.Parameters.AddWithValue("@firstName", firstName);
                     cmd.Parameters.AddWithValue("@LastName", lastName);
-                    cmd.Parameters.AddWithValue("@Status", status);
+                    cmd.Parameters.AddWithValue("@status", status);
                     cmd.ExecuteNonQuery();
 
                     int num = Convert.ToInt32(cmd.ExecuteScalar());
@@ -229,10 +264,115 @@ namespace Malshinon2._0.MalshinonDAL
                 throw;
             }
         }
+        //----------------------------------------------------------------------------------------
+        public void potentialAgen(string firstName, string lastName, string status)
+        {
+            try
+            {
 
+                string query = "UPDATE people SET Status = @status WHERE FirstName = @firstName AND LastName =@LastName";
+                using (cmd = new MySqlCommand(query, conn))
+                {
 
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@LastName", lastName);
+                    cmd.Parameters.AddWithValue("@status", status);
+                    cmd.ExecuteNonQuery();
 
+                    int num = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (num > 0)
+                    {
+                        Console.WriteLine($"the status for {firstName} {lastName} updeate");
+                    }
+                    else
+                    {
+                        Console.WriteLine("An error occurred while updating the status..");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                throw;
+            }
+        }
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+        public bool UpdateStatusForHighActivity()
+        {
+            try
+            {
+                
+                string query = @"
+            UPDATE people
+            JOIN (
+                SELECT InformerId
+                FROM reports
+                GROUP BY InformerId
+                HAVING COUNT(*) > 10 AND AVG(ReportLength) > 100
+            ) AS active_informers ON people.Id = active_informers.InformerId
+            SET people.Status = 'PotentialAgent'
+            WHERE people.Status != 'PotentialAgent'";
 
+                using ( cmd = new MySqlCommand(query, conn))
+                {
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine($"Status updated to PotentialAgent for {rowsAffected} informers");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No updates needed (no informers met the conditions or all are already PotentialAgent)");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+                return false;
+            }
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------
+        public List<people> returnByStatus(string status)
+        {
+            List<people> listPeople = new List<people>();
+            try
+            {
+                
+                string query = "SELECT * FROM people WHERE Status = @status";
 
+                using ( cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@status", status);
+
+                    using (reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            people people = new people
+                                (
+                                reader.GetInt32("Id"),
+                                reader.GetString("FirstName"),
+                                reader.GetString("LastName"),
+                                reader.GetString("SecretCode"),
+                                reader.GetInt32("ReportCount"),
+                                reader.GetString("Status"),
+                                reader.GetInt32("MentionCount")
+                                );
+
+                            listPeople.Add(people);
+                        }
+                    }
+                }
+                return listPeople;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+                return null;
+            }
+        }
     }
 }
