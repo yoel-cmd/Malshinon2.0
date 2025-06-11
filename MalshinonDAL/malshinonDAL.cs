@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Malshinon2._0.Models;
 using MySql.Data.MySqlClient;
 
 namespace Malshinon2._0.MalshinonDAL
@@ -263,10 +264,115 @@ namespace Malshinon2._0.MalshinonDAL
                 throw;
             }
         }
+        //----------------------------------------------------------------------------------------
+        public void potentialAgen(string firstName, string lastName, string status)
+        {
+            try
+            {
 
+                string query = "UPDATE people SET Status = @status WHERE FirstName = @firstName AND LastName =@LastName";
+                using (cmd = new MySqlCommand(query, conn))
+                {
 
+                    cmd.Parameters.AddWithValue("@firstName", firstName);
+                    cmd.Parameters.AddWithValue("@LastName", lastName);
+                    cmd.Parameters.AddWithValue("@status", status);
+                    cmd.ExecuteNonQuery();
 
+                    int num = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (num > 0)
+                    {
+                        Console.WriteLine($"the status for {firstName} {lastName} updeate");
+                    }
+                    else
+                    {
+                        Console.WriteLine("An error occurred while updating the status..");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.Message}");
+                throw;
+            }
+        }
+        //---------------------------------------------------------------------------------------------------------------------------------------------
+        public bool UpdateStatusForHighActivity()
+        {
+            try
+            {
+                
+                string query = @"
+            UPDATE people
+            JOIN (
+                SELECT InformerId
+                FROM reports
+                GROUP BY InformerId
+                HAVING COUNT(*) > 10 AND AVG(ReportLength) > 100
+            ) AS active_informers ON people.Id = active_informers.InformerId
+            SET people.Status = 'PotentialAgent'
+            WHERE people.Status != 'PotentialAgent'";
 
+                using ( cmd = new MySqlCommand(query, conn))
+                {
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        Console.WriteLine($"Status updated to PotentialAgent for {rowsAffected} informers");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No updates needed (no informers met the conditions or all are already PotentialAgent)");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+                return false;
+            }
+        }
+        //----------------------------------------------------------------------------------------------------------------------------------
+        public List<people> returnByStatus(string status)
+        {
+            List<people> listPeople = new List<people>();
+            try
+            {
+                
+                string query = "SELECT * FROM people WHERE Status = @status";
 
+                using ( cmd = new MySqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@status", status);
+
+                    using (reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            people people = new people
+                                (
+                                reader.GetInt32("Id"),
+                                reader.GetString("FirstName"),
+                                reader.GetString("LastName"),
+                                reader.GetString("SecretCode"),
+                                reader.GetInt32("ReportCount"),
+                                reader.GetString("Status"),
+                                reader.GetInt32("MentionCount")
+                                );
+
+                            listPeople.Add(people);
+                        }
+                    }
+                }
+                return listPeople;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+                return null;
+            }
+        }
     }
 }
