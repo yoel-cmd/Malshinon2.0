@@ -9,30 +9,45 @@ using MySql.Data.MySqlClient;
 namespace Malshinon2._0
 {
     internal class Program
+            //int num;
+            //string str;
+            //bool Exsist;
+
+            ////malshinonDAL.createPeople("yoel", "ider");
+            ////num= malshinonDAL.returnIdByName("yoel", "ider");
+            //// Console.WriteLine(num);
+
+            ////Exsist= malshinonDAL.checkIfSecretCodeExists("5,_|xq");
+            ////Console.WriteLine(Exsist);
+            ////string[]strArr= malshinonDAL.ParseReport("yoel ider him food");
+
+            ////string strr = String.Join(" ",strArr.Skip(2));
+            ////Console.WriteLine(strArr[0] + strArr[1]);
+            ////Console.WriteLine(strr);
+
+            ////Exsist= malshinonDAL.FindPersonByName("yoel", "ider");
+            //// Console.WriteLine(Exsist);
+            //malshinonDAL.deleteByName("yoel", "ider");
+            //malshinonDAL.deleteByName("yoel", "ider");
     {
         static void Main(string[] args)
         {
 
             malshinonDAL malshinonDAL = new malshinonDAL("server=localhost;username=root;password=;database=malshinon2.0");
-            int num;
-            string str;
-            bool Exsist ;
+            servis servis = new servis(malshinonDAL);
 
-            //malshinonDAL.createPeople("yoel", "ider");
-            //num= malshinonDAL.returnIdByName("yoel", "ider");
-            // Console.WriteLine(num);
+            servis.run();
 
-            //Exsist= malshinonDAL.checkIfSecretCodeExists("5,_|xq");
-            //Console.WriteLine(Exsist);
-            //string[]strArr= malshinonDAL.ParseReport("yoel ider him food");
 
-            //string strr = String.Join(" ",strArr.Skip(2));
-            //Console.WriteLine(strArr[0] + strArr[1]);
-            //Console.WriteLine(strr);
 
-            //Exsist= malshinonDAL.FindPersonByName("yoel", "ider");
-            // Console.WriteLine(Exsist);
-            malshinonDAL.deleteByName("yoel", "ider");
+
+
+
+
+
+
+
+
 
 
 
