@@ -297,7 +297,7 @@ namespace Malshinon2._0.MalshinonDAL
             }
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        public bool UpdateStatusForHighActivity()
+        public void UpdateStatusForHighActivity()
         {
             try
             {
@@ -319,19 +319,19 @@ namespace Malshinon2._0.MalshinonDAL
                     if (rowsAffected > 0)
                     {
                         Console.WriteLine($"Status updated to PotentialAgent for {rowsAffected} informers");
-                        return true;
+                        
                     }
                     else
                     {
                         Console.WriteLine("No updates needed (no informers met the conditions or all are already PotentialAgent)");
-                        return false;
+                       
                     }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine($"err : {e.Message}");
-                return false;
+                
             }
         }
         //----------------------------------------------------------------------------------------------------------------------------------
@@ -372,6 +372,53 @@ namespace Malshinon2._0.MalshinonDAL
             {
                 Console.WriteLine($"err : {e.Message}");
                 return null;
+            }
+        }
+        //-------------------------------------------------------------------------------------------------------------------------
+        public List<people> Highisk()
+        {
+            List<people> listPeople = new List<people>();
+            try
+            {
+                string query = @"
+        SELECT DISTINCT p.*
+        FROM people p
+        LEFT JOIN (
+            SELECT ReportedId
+            FROM reports
+            GROUP BY ReportedId
+            HAVING COUNT(*) >= 20
+                OR SUM(CASE WHEN ReportDate >= DATE_SUB(NOW(), INTERVAL 15 MINUTE) THEN 1
+              ELSE 0 END) >= 3
+        ) AS dangerous_reported ON p.Id = dangerous_reported.ReportedId
+        WHERE dangerous_reported.ReportedId IS NOT NULL;";
+                using (cmd = new MySqlCommand(query, conn))
+                {
+                    using (reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            people people = new people
+                                (
+                                reader.GetInt32("Id"),
+                                reader.GetString("FirstName"),
+                                reader.GetString("LastName"),
+                                reader.GetString("SecretCode"),
+                                reader.GetInt32("ReportCount"),
+                                reader.GetString("Status"),
+                                reader.GetInt32("MentionCount")
+                                );
+
+                            listPeople.Add(people);
+                        }
+                    }
+                }
+                return listPeople;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+                return null; // מומלץ להחליף ב-new List<people>()
             }
         }
     }

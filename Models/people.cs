@@ -29,11 +29,13 @@ namespace Malshinon2._0.Models
         //------------------------------------------------------------------------
         public void PrintInfo()
         {
+            Console.WriteLine($"id:{Id}");
             Console.WriteLine($"FirstName:{FirstName}");
             Console.WriteLine($"LastName:{LastName}");
             Console.WriteLine($"SecretCode:{SecretCode}");
             Console.WriteLine($"ReportCount:{ReportCount}");
             Console.WriteLine($"Status:{Status}");
+            Console.WriteLine($"MentionCount:{MentionCount}");
             Console.WriteLine("---------------");
         }
         //--------

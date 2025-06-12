@@ -37,9 +37,16 @@ namespace Malshinon2._0
             servis servis = new servis(malshinonDAL);
 
             //servis.run();
-            double d;
-           d= malshinonDAL.returnLength(7);
-            Console.WriteLine(d);
+            //servis.returnRiskPeopel();
+
+            //malshinonDAL.UpdateStatusForHighActivity();
+
+            servis.reternPotentialAgent();
+
+
+           // double d;
+           //d= malshinonDAL.returnLength(7);
+           // Console.WriteLine(d);
 
 
 
