@@ -79,6 +79,7 @@ namespace Malshinon2._0.MalshinonDAL
                     cmd.Parameters.AddWithValue("@LastName", lastName);
                     cmd.ExecuteNonQuery();
                     Console.WriteLine($"{firstName}{lastName} delete DB");
+                    readToLog($"{firstName}{lastName} delete DB");
                     
                   
                 }
@@ -107,6 +108,7 @@ namespace Malshinon2._0.MalshinonDAL
 
                     cmd.ExecuteNonQuery();
                     Console.WriteLine($" {firstName} {lastName} added to DB");
+                    readToLog($" {firstName} {lastName} with status {status} added to DB");
                 }
             }
             catch (Exception e)
@@ -143,6 +145,7 @@ namespace Malshinon2._0.MalshinonDAL
             catch (Exception e)
             {
                 Console.WriteLine($"Error: {e.Message}");
+                readToLog($"Error: {e.Message}");
                 throw;
             }
         }
@@ -158,6 +161,7 @@ namespace Malshinon2._0.MalshinonDAL
             if (reportArr.Length < 3)
             {
                 Console.WriteLine("Report must contain valid first and last names");
+                readToLog("Report must contain valid first and last names");
                 return null;
             }
             return reportArr;
@@ -193,11 +197,13 @@ namespace Malshinon2._0.MalshinonDAL
                     if (rowsAffected >= 3) 
                     {
                         Console.WriteLine($"Report added for InformerId {idInformer} and TargetId {idTarget}");
+                        readToLog($" id ({idInformer}) Reported To TargetId id ({idTarget})");
                         return true;
                     }
                     else
                     {
                         Console.WriteLine($"Failed to add report: InformerId {idInformer} or TargetId {idTarget} may not exist.");
+                        readToLog($"Failed to add report: InformerId {idInformer} or TargetId {idTarget} may not exist.");
                         return false;
                     }
                 }
@@ -229,6 +235,7 @@ namespace Malshinon2._0.MalshinonDAL
             catch (Exception e)
             {
                 Console.WriteLine($"Error: {e.Message}");
+                
                 throw;
             }
         }
@@ -250,10 +257,12 @@ namespace Malshinon2._0.MalshinonDAL
                     int num = Convert.ToInt32(cmd.ExecuteScalar());
                     if( num > 0)
                     {
+                        readToLog($"the status for {firstName} {lastName} updeate");
                         Console.WriteLine($"the status for {firstName} {lastName} updeate");
                     }
                     else
                     {
+                        readToLog("An error occurred while updating the status..");
                         Console.WriteLine("An error occurred while updating the status..");
                     }
                 }
@@ -282,10 +291,12 @@ namespace Malshinon2._0.MalshinonDAL
                     int num = Convert.ToInt32(cmd.ExecuteScalar());
                     if (num > 0)
                     {
+                        readToLog($"the status for {firstName} {lastName} updeate");
                         Console.WriteLine($"the status for {firstName} {lastName} updeate");
                     }
                     else
                     {
+                        readToLog("An error occurred while updating the status..");
                         Console.WriteLine("An error occurred while updating the status..");
                     }
                 }
@@ -318,11 +329,14 @@ namespace Malshinon2._0.MalshinonDAL
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
+                        readToLog($"Status updated to PotentialAgent for {rowsAffected} informers");
                         Console.WriteLine($"Status updated to PotentialAgent for {rowsAffected} informers");
+                        
                         
                     }
                     else
                     {
+                        readToLog("No updates needed (no informers met the conditions or all are already PotentialAgent)");
                         Console.WriteLine("No updates needed (no informers met the conditions or all are already PotentialAgent)");
                        
                     }
@@ -338,6 +352,7 @@ namespace Malshinon2._0.MalshinonDAL
         public List<people> returnByStatus(string status)
         {
             List<people> listPeople = new List<people>();
+            int count = 0;
             try
             {
                 
@@ -351,6 +366,7 @@ namespace Malshinon2._0.MalshinonDAL
                     {
                         while (reader.Read())
                         {
+                            count++;
                             people people = new people
                                 (
                                 reader.GetInt32("Id"),
@@ -364,6 +380,8 @@ namespace Malshinon2._0.MalshinonDAL
 
                             listPeople.Add(people);
                         }
+                        readToLog($"{count} people adding to DB");
+                        Console.WriteLine($"{count} people adding to DB");
                     }
                 }
                 return listPeople;
@@ -378,6 +396,7 @@ namespace Malshinon2._0.MalshinonDAL
         public List<people> Highisk()
         {
             List<people> listPeople = new List<people>();
+            int conut = 0;
             try
             {
                 string query = @"
@@ -398,6 +417,7 @@ namespace Malshinon2._0.MalshinonDAL
                     {
                         while (reader.Read())
                         {
+                            conut++;
                             people people = new people
                                 (
                                 reader.GetInt32("Id"),
@@ -411,6 +431,9 @@ namespace Malshinon2._0.MalshinonDAL
 
                             listPeople.Add(people);
                         }
+
+                        readToLog($"{conut} people adding to DB");
+                        Console.WriteLine($"{conut} people adding to DB");
                     }
                 }
                 return listPeople;
@@ -421,5 +444,35 @@ namespace Malshinon2._0.MalshinonDAL
                 return null; // מומלץ להחליף ב-new List<people>()
             }
         }
+        //------------------------------------------------------------------------------------------------------------------
+        public void readToLog(string info)
+        {
+            try
+            {
+                string query = "INSERT INTO Logs (Info) VALUES (@info)"; 
+
+                    using (var cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@info", info);
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                        {
+                            Console.WriteLine(" adding to DB Log ");
+                            
+                        }
+                        else
+                        {
+                            Console.WriteLine("no adding !!!");
+                            
+                        }
+                    }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"err : {e.Message}");
+            }
+        }
+        //------------------------------------------------------------------------------------------------------------------
     }
 }
