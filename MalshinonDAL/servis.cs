@@ -11,31 +11,28 @@ namespace Malshinon2._0.MalshinonDAL
     {
 
         private malshinonDAL malshinonDAL;
-
-        //public servis(malshinonDAL malshinonDAL)
-        //{
-        //    this.malshinonDAL= malshinonDAL;
-        //}
-
+        public servis()
+        {
+            malshinonDAL = new malshinonDAL("server=localhost;username=root;password=;database=malshinon2.0");
+        }
         public  void run()
         {
-             malshinonDAL = new malshinonDAL("server=localhost;username=root;password=;database=malshinon2.0");
 
 
             string firsNameInformers, lastNameInformers, respons, allRespons;
             string[] strArr;
             int InformerId, ReportedId;
 
-            Console.WriteLine("enter first mame");
+            Console.WriteLine("enter jost first mame");
             firsNameInformers = Console.ReadLine();
-            Console.WriteLine("enter last mame");
+            Console.WriteLine("enter jost last mame");
             lastNameInformers = Console.ReadLine();
 
             if (!malshinonDAL.FindPersonByName(firsNameInformers, lastNameInformers))
             {
                 malshinonDAL.createPeople(firsNameInformers, lastNameInformers, "Informers");
             }
-            Console.WriteLine("enter full name target and your respons");
+            Console.WriteLine("Enter first and last name: then report");
             respons = Console.ReadLine();
 
             strArr = malshinonDAL.parseReport(respons);
@@ -81,6 +78,11 @@ namespace Malshinon2._0.MalshinonDAL
             {
                 item.PrintInfo();
             }
+        }
+
+        public void Exit()
+        {
+            Console.WriteLine("The program closed successfully.");
         }
 
     }
