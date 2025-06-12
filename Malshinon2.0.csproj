@@ -95,9 +95,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Log\log.cs" />
     <Compile Include="MalshinonDAL\malshinonDAL.cs" />
     <Compile Include="MalshinonDAL\servis.cs" />
-    <Compile Include="menu.cs" />
+    <Compile Include="Menu\menu.cs" />
     <Compile Include="Models\people.cs" />
     <Compile Include="Models\reports.cs" />
     <Compile Include="Program.cs" />

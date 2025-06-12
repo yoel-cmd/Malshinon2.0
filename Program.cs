@@ -36,10 +36,18 @@ namespace Malshinon2._0
             malshinonDAL malshinonDAL = new malshinonDAL("server=localhost;username=root;password=;database=malshinon2.0");
             servis servis = new servis(malshinonDAL);
 
-            //servis.run();
-            double d;
-           d= malshinonDAL.returnLength(7);
-            Console.WriteLine(d);
+            servis.run();
+            //servis.returnRiskPeopel();
+
+            //malshinonDAL.UpdateStatusForHighActivity();
+
+            //servis.reternPotentialAgent();
+            //malshinonDAL.readToLog("Test log entry");
+
+
+            // double d;
+            //d= malshinonDAL.returnLength(7);
+            // Console.WriteLine(d);
 
 
 

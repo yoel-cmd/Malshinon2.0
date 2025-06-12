@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Malshinon2._0.Models;
 
 namespace Malshinon2._0.MalshinonDAL
 {
     internal class servis
     {
-        
+
         private malshinonDAL malshinonDAL;
 
-        public servis(malshinonDAL malshinonDAL)
-        {
-            this.malshinonDAL= malshinonDAL;
-        }
+        //public servis(malshinonDAL malshinonDAL)
+        //{
+        //    this.malshinonDAL= malshinonDAL;
+        //}
 
-        public void run()
+        public  void run()
         {
              malshinonDAL = new malshinonDAL("server=localhost;username=root;password=;database=malshinon2.0");
 
@@ -61,6 +62,26 @@ namespace Malshinon2._0.MalshinonDAL
             malshinonDAL.UpdateReport(InformerId, ReportedId, allRespons);
         }
         
+         public void returnRiskPeopel()
+        {
+            List<people> peoples = new List<people>();
+            peoples = malshinonDAL.Highisk();
+            foreach (people item in peoples)
+            {
+                item.PrintInfo();
+            }
+        }
+        public void reternPotentialAgent()
+
+        {
+            malshinonDAL.UpdateStatusForHighActivity();
+            List<people> peoples = new List<people>();
+            peoples = malshinonDAL.returnByStatus("PotentialAgent");
+            foreach (people item in peoples)
+            {
+                item.PrintInfo();
+            }
+        }
 
     }
 
