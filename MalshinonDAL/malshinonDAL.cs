@@ -21,6 +21,7 @@ namespace Malshinon2._0.MalshinonDAL
         {
             conn = new MySqlConnection(connection);
             conn.Open();
+            readToLog("connection to DB");
         }
         //----------------------------------------------------------------------------------------
         public bool FindPersonByName(string firstName, string lastName)
@@ -78,7 +79,7 @@ namespace Malshinon2._0.MalshinonDAL
                     cmd.Parameters.AddWithValue("@FirstName", firstName);
                     cmd.Parameters.AddWithValue("@LastName", lastName);
                     cmd.ExecuteNonQuery();
-                    Console.WriteLine($"{firstName}{lastName} delete DB");
+                    
                     readToLog($"{firstName}{lastName} delete DB");
                     
                   
@@ -107,7 +108,7 @@ namespace Malshinon2._0.MalshinonDAL
                     cmd.Parameters.AddWithValue("@SecretCode", SecretCode);
 
                     cmd.ExecuteNonQuery();
-                    Console.WriteLine($" {firstName} {lastName} added to DB");
+                  
                     readToLog($" {firstName} {lastName} with status {status} added to DB");
                 }
             }
@@ -196,7 +197,7 @@ namespace Malshinon2._0.MalshinonDAL
                     int rowsAffected = cmd.ExecuteNonQuery();
                     if (rowsAffected >= 3) 
                     {
-                        Console.WriteLine($"Report added for InformerId {idInformer} and TargetId {idTarget}");
+                        Console.WriteLine($"The comment was successfully posted ");
                         readToLog($" id ({idInformer}) Reported To TargetId id ({idTarget})");
                         return true;
                     }
@@ -311,8 +312,7 @@ namespace Malshinon2._0.MalshinonDAL
         public void UpdateStatusForHighActivity()
         {
             try
-            {
-                
+            {               
                 string query = @"
             UPDATE people
             JOIN (
@@ -349,26 +349,24 @@ namespace Malshinon2._0.MalshinonDAL
             }
         }
         //----------------------------------------------------------------------------------------------------------------------------------
+       
         public List<people> returnByStatus(string status)
         {
             List<people> listPeople = new List<people>();
             int count = 0;
             try
             {
-                
                 string query = "SELECT * FROM people WHERE Status = @status";
-
-                using ( cmd = new MySqlCommand(query, conn))
+                using (cmd = new MySqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@status", status);
-
                     using (reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             count++;
                             people people = new people
-                                (
+                            (
                                 reader.GetInt32("Id"),
                                 reader.GetString("FirstName"),
                                 reader.GetString("LastName"),
@@ -376,27 +374,27 @@ namespace Malshinon2._0.MalshinonDAL
                                 reader.GetInt32("ReportCount"),
                                 reader.GetString("Status"),
                                 reader.GetInt32("MentionCount")
-                                );
-
+                            );
                             listPeople.Add(people);
                         }
-                        readToLog($"{count} people adding to DB");
-                        Console.WriteLine($"{count} people adding to DB");
-                    }
+                    } // reader נסגר כאן
+                    readToLog($"{count} people adding to DB");
+                    Console.WriteLine($"{count} people adding to DB");
                 }
                 return listPeople;
             }
             catch (Exception e)
             {
                 Console.WriteLine($"err : {e.Message}");
-                return null;
+                return null; // מומלץ להחליף ב-new List<people>()
             }
         }
         //-------------------------------------------------------------------------------------------------------------------------
+      
         public List<people> Highisk()
         {
             List<people> listPeople = new List<people>();
-            int conut = 0;
+            int count = 0;
             try
             {
                 string query = @"
@@ -417,9 +415,9 @@ namespace Malshinon2._0.MalshinonDAL
                     {
                         while (reader.Read())
                         {
-                            conut++;
+                            count++;
                             people people = new people
-                                (
+                            (
                                 reader.GetInt32("Id"),
                                 reader.GetString("FirstName"),
                                 reader.GetString("LastName"),
@@ -427,14 +425,12 @@ namespace Malshinon2._0.MalshinonDAL
                                 reader.GetInt32("ReportCount"),
                                 reader.GetString("Status"),
                                 reader.GetInt32("MentionCount")
-                                );
-
+                            );
                             listPeople.Add(people);
                         }
-
-                        readToLog($"{conut} people adding to DB");
-                        Console.WriteLine($"{conut} people adding to DB");
-                    }
+                    } // reader נסגר כאן
+                    readToLog($"{count} people adding to DB");
+                    Console.WriteLine($"{count} people adding to DB");
                 }
                 return listPeople;
             }
@@ -457,12 +453,12 @@ namespace Malshinon2._0.MalshinonDAL
                         int rowsAffected = cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
                         {
-                            Console.WriteLine(" adding to DB Log ");
+                            
                             
                         }
                         else
                         {
-                            Console.WriteLine("no adding !!!");
+                            
                             
                         }
                     }
@@ -474,5 +470,11 @@ namespace Malshinon2._0.MalshinonDAL
             }
         }
         //------------------------------------------------------------------------------------------------------------------
+        public void Exit()
+        {
+            conn.Close();
+            readToLog("close connection DB ");
+        }
     }
+
 }

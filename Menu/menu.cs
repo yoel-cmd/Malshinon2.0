@@ -12,7 +12,7 @@ namespace Malshinon2._0
             servis servis = new servis();
             int choice = 0;
 
-            while (choice != 5)
+            while (choice != 4)
             {
                 Console.WriteLine("Please choose an option:");
                 Console.WriteLine("1 - To informent");
@@ -24,7 +24,7 @@ namespace Malshinon2._0
 
                 if (!int.TryParse(input, out choice))
                 {
-                    Console.WriteLine("Invalid input. Please try again.\n");
+                    Console.WriteLine("Invalid input. Please try again.");
                     continue;
                 }
 
@@ -34,16 +34,14 @@ namespace Malshinon2._0
                         servis.run();
                         break;
                     case 2:
-                        servis.reternPotentialAgent();
-                        Console.WriteLine("You chose option 2.\n");
+                        servis.reternPotentialAgent();                        
                         break;
                     case 3:
                         servis.returnRiskPeopel();
-                        Console.WriteLine("You chose option 3.\n");
+                        
                         break;
                     case 4:
-
-                        Console.WriteLine("You chose option 4.\n");
+                        servis.Exit();                        
                         break;
                    
                 }
